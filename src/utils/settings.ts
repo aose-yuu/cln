@@ -8,7 +8,7 @@ const CONFIG_DIR = join(homedir(), '.config', 'cln');
 const SETTINGS_FILE = join(CONFIG_DIR, 'settings.json');
 
 const DEFAULT_SETTINGS: Settings = {
-  outDir: join(homedir(), 'works'),
+  outDir: join(homedir(), 'cln'),
   repositories: {}
 };
 

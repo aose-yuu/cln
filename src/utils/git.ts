@@ -62,7 +62,7 @@ export async function getClonePath(repoName: string, branchName: string): Promis
   const sanitizedRepo = sanitizeRepositoryName(repoName);
   const sanitizedBranch = sanitizeBranchName(branchName);
   
-  return join(outDir, 'cln', sanitizedRepo, sanitizedBranch);
+  return join(outDir, sanitizedRepo, sanitizedBranch);
 }
 
 export async function ensureParentDirectory(path: string): Promise<void> {
@@ -82,7 +82,7 @@ export async function directoryExists(path: string): Promise<boolean> {
 
 export async function listClonedRepositories(): Promise<ClonedRepository[]> {
   const settings = await loadSettings();
-  const baseDir = join(expandPath(settings.outDir), 'cln');
+  const baseDir = expandPath(settings.outDir);
   const repositories: ClonedRepository[] = [];
   
   try {
@@ -120,7 +120,7 @@ export async function removeDirectory(path: string): Promise<CommandResult> {
   try {
     // Validate that the path is within our managed directory
     const settings = await loadSettings();
-    const baseDir = join(expandPath(settings.outDir), 'cln');
+    const baseDir = expandPath(settings.outDir);
     
     if (!validatePath(path, baseDir)) {
       throw new Error('Cannot remove directory outside of managed area');
