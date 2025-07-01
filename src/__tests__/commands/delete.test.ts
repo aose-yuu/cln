@@ -33,13 +33,11 @@ vi.mock('../../utils/git.js', () => ({
 }));
 
 import prompts from 'prompts';
+import ora from 'ora';
 
 describe('delete command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('process.exit');
-    });
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
@@ -54,7 +52,7 @@ describe('delete command', () => {
     vi.mocked(prompts).mockResolvedValue({ shouldDelete: true });
     vi.mocked(git.removeDirectory).mockResolvedValue({ success: true });
 
-    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit');
+    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit(0)');
 
     expect(git.listClonedRepositories).toHaveBeenCalled();
     expect(prompts).toHaveBeenCalled();
@@ -70,20 +68,27 @@ describe('delete command', () => {
     vi.mocked(git.listClonedRepositories).mockResolvedValue(mockRepos);
     vi.mocked(prompts).mockResolvedValue({ shouldDelete: false });
 
-    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit');
+    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit(2)');
 
     expect(git.removeDirectory).not.toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith('Cancelled');
-    expect(process.exit).toHaveBeenCalledWith(0);
+    expect(process.exit).toHaveBeenCalledWith(2); // CANCELLED
   });
 
   it('should fail if no directories found for branch', async () => {
     vi.mocked(git.listClonedRepositories).mockResolvedValue([]);
+    const mockSpinner = {
+      start: vi.fn().mockReturnThis(),
+      stop: vi.fn(),
+      succeed: vi.fn(),
+      fail: vi.fn()
+    };
+    vi.mocked(ora).mockReturnValue(mockSpinner as any);
 
-    await expect(deleteCommandAction('non-existent-branch')).rejects.toThrow('process.exit');
+    await expect(deleteCommandAction('non-existent-branch')).rejects.toThrow('process.exit(3)');
 
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('No directories found'));
-    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(mockSpinner.fail).toHaveBeenCalled();
+    expect(process.exit).toHaveBeenCalledWith(3); // NOT_FOUND
   });
 
   it('should handle deletion errors', async () => {
@@ -95,9 +100,9 @@ describe('delete command', () => {
     vi.mocked(prompts).mockResolvedValue({ shouldDelete: true });
     vi.mocked(git.removeDirectory).mockResolvedValue({ success: false, error: 'Permission denied' });
 
-    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit');
+    await expect(deleteCommandAction('feature-branch')).rejects.toThrow('process.exit(1)');
 
     expect(git.removeDirectory).toHaveBeenCalled();
-    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.exit).toHaveBeenCalledWith(1); // Generic error
   });
 });

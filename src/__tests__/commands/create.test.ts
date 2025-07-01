@@ -39,9 +39,6 @@ vi.mock('../../utils/shell.js', () => ({
 describe('create command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(process, 'exit').mockImplementation(() => {
-      throw new Error('process.exit');
-    });
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
@@ -53,7 +50,7 @@ describe('create command', () => {
     vi.mocked(git.ensureParentDirectory).mockResolvedValue();
     vi.mocked(git.cloneRepository).mockResolvedValue({ success: true });
 
-    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit');
+    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit(0)');
 
     expect(settings.getRepositoryUrl).toHaveBeenCalledWith('test-repo');
     expect(git.cloneRepository).toHaveBeenCalledWith('https://github.com/test/repo.git', mockPath, 'main');
@@ -64,9 +61,9 @@ describe('create command', () => {
   it('should fail if repository not found in configuration', async () => {
     vi.mocked(settings.getRepositoryUrl).mockResolvedValue(undefined);
 
-    await expect(createCommandAction('unknown-repo', 'main')).rejects.toThrow('process.exit');
+    await expect(createCommandAction('unknown-repo', 'main')).rejects.toThrow('process.exit(3)');
 
-    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.exit).toHaveBeenCalledWith(3); // NOT_FOUND error
   });
 
   it('should fail if directory already exists', async () => {
@@ -75,10 +72,10 @@ describe('create command', () => {
     vi.mocked(git.getClonePath).mockResolvedValue(mockPath);
     vi.mocked(git.directoryExists).mockResolvedValue(true);
 
-    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit');
+    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit(4)');
 
     expect(git.cloneRepository).not.toHaveBeenCalled();
-    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.exit).toHaveBeenCalledWith(4); // VALIDATION_ERROR
   });
 
   it('should handle clone failure', async () => {
@@ -89,8 +86,8 @@ describe('create command', () => {
     vi.mocked(git.ensureParentDirectory).mockResolvedValue();
     vi.mocked(git.cloneRepository).mockResolvedValue({ success: false, error: 'Clone failed' });
 
-    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit');
+    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit(1)');
 
-    expect(process.exit).toHaveBeenCalledWith(1);
+    expect(process.exit).toHaveBeenCalledWith(1); // Generic error
   });
 });
