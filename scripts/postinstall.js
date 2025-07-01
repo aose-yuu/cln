@@ -1,13 +1,20 @@
 #!/usr/bin/env node
-import { homedir } from 'os';
-import { join } from 'path';
-import { consola } from 'consola';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import pc from 'picocolors';
 
-consola.success('CLN has been installed successfully!\n');
-consola.info('To enable the cd functionality, add the following to your shell configuration:\n');
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-consola.box('For bash (~/.bashrc) or zsh (~/.zshrc):');
-consola.log(`
+// Read the shell integration script
+let shellIntegration;
+try {
+  shellIntegration = readFileSync(join(__dirname, 'shell-integration.sh'), 'utf8');
+} catch (e) {
+  // Fallback to inline definition if file not found
+  shellIntegration = `
+# CLN Shell Integration
+# For bash/zsh
 cln() {
   # Capture both stdout and the temp file marker
   local output
@@ -33,10 +40,8 @@ cln() {
   
   return $exit_code
 }
-`);
 
-consola.box('For fish (~/.config/fish/config.fish):');
-consola.log(`
+# For fish shell
 function cln
   # Capture both stdout and the temp file marker
   set output (command cln $argv 2>&1)
@@ -60,14 +65,31 @@ function cln
   end
   
   return $exit_code
-end
-`);
+end`;
+}
 
-consola.info('\nFor tab completion, add the following to your shell configuration:');
+console.log(pc.green('✅ CLN has been installed successfully!\n'));
+console.log(pc.cyan('ℹ To enable the cd functionality, add the following to your shell configuration:\n'));
 
-consola.box('For bash:');
-consola.log(`
-_cln_completion() {
+// Extract bash/zsh function
+const bashFunction = shellIntegration.match(/# For bash\/zsh\ncln\(\) \{[\s\S]*?\n\}/)?.[0] || '';
+
+console.log(pc.bold('┌─ For bash (~/.bashrc) or zsh (~/.zshrc) ─┐'));
+console.log(bashFunction);
+console.log(pc.bold('└─────────────────────────────────────────────┘\n'));
+
+// Extract fish function
+const fishStart = shellIntegration.indexOf('# For fish shell');
+const fishFunction = fishStart > -1 ? shellIntegration.substring(fishStart).split('\n\n')[0] : '';
+
+console.log(pc.bold('┌─ For fish (~/.config/fish/config.fish) ─┐'));
+console.log(fishFunction);
+console.log(pc.bold('└──────────────────────────────────────────┘\n'));
+
+console.log(pc.cyan('ℹ For tab completion, add the following to your shell configuration:\n'));
+
+console.log(pc.bold('┌─ For bash ─┐'));
+console.log(`_cln_completion() {
   local cur prev
   COMPREPLY=()
   cur="\${COMP_WORDS[COMP_CWORD]}"
@@ -79,13 +101,14 @@ _cln_completion() {
     COMPREPLY=( $(compgen -W "\${commands}" -- \${cur}) )
   fi
 }
-complete -F _cln_completion cln
-`);
+complete -F _cln_completion cln`);
+console.log(pc.bold('└────────────┘\n'));
 
-consola.box('For zsh:');
-consola.log('autoload -U compinit && compinit');
+console.log(pc.bold('┌─ For zsh ─┐'));
+console.log('autoload -U compinit && compinit');
+console.log(pc.bold('└───────────┘\n'));
 
-consola.info('\nAfter adding the function and completion, reload your shell configuration:');
-consola.log('  source ~/.bashrc    # for bash');
-consola.log('  source ~/.zshrc     # for zsh');
-consola.log('  source ~/.config/fish/config.fish  # for fish\n');
+console.log(pc.cyan('ℹ After adding the function and completion, reload your shell configuration:'));
+console.log(pc.gray('  source ~/.bashrc    # for bash'));
+console.log(pc.gray('  source ~/.zshrc     # for zsh'));
+console.log(pc.gray('  source ~/.config/fish/config.fish  # for fish\n'));
