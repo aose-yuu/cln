@@ -31,8 +31,7 @@ export async function createCommandAction(repository: string, branch: string) {
       writeCdPath(path);
       spinner.succeed(pc.green('✅ Successfully cloned!'));
       console.log(pc.gray(`Path: ${path}`));
-      
-      setTimeout(() => process.exit(0), 1000);
+      process.exit(0);
     } else {
       spinner.fail(pc.red(`❌ Error: ${result.error || 'Failed to clone repository'}`));
       process.exit(1);

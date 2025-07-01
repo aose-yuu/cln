@@ -53,28 +53,12 @@ describe('create command', () => {
     vi.mocked(git.ensureParentDirectory).mockResolvedValue();
     vi.mocked(git.cloneRepository).mockResolvedValue({ success: true });
 
-    // Use fake timers to control setTimeout
-    vi.useFakeTimers();
-    
-    // Start the command action
-    const promise = createCommandAction('test-repo', 'main');
-    
-    // Wait for writeCdPath to be called
-    await vi.waitFor(() => {
-      expect(shell.writeCdPath).toHaveBeenCalled();
-    });
-    
-    // Now advance timers
-    await vi.runAllTimersAsync();
-    
-    await expect(promise).rejects.toThrow('process.exit');
+    await expect(createCommandAction('test-repo', 'main')).rejects.toThrow('process.exit');
 
     expect(settings.getRepositoryUrl).toHaveBeenCalledWith('test-repo');
     expect(git.cloneRepository).toHaveBeenCalledWith('https://github.com/test/repo.git', mockPath, 'main');
     expect(shell.writeCdPath).toHaveBeenCalledWith(mockPath);
     expect(process.exit).toHaveBeenCalledWith(0);
-
-    vi.useRealTimers();
   });
 
   it('should fail if repository not found in configuration', async () => {

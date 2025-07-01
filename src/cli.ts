@@ -72,11 +72,7 @@ export async function runInteractiveMode() {
         writeCdPath(clonePath);
         cloneSpinner.succeed(pc.green('✅ Successfully cloned!'));
         console.log(pc.gray(`Path: ${clonePath}`));
-        
-        // Give user time to see the success message
-        setTimeout(() => {
-          process.exit(0);
-        }, 1000);
+        process.exit(0);
       } else {
         cloneSpinner.fail(pc.red(`❌ Error: ${result.error || 'Failed to clone repository'}`));
         process.exit(1);

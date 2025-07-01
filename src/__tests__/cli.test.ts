@@ -72,28 +72,12 @@ describe('interactive mode', () => {
     vi.spyOn(git, 'ensureParentDirectory').mockResolvedValue();
     vi.spyOn(git, 'cloneRepository').mockResolvedValue({ success: true });
 
-    // Use fake timers
-    vi.useFakeTimers();
-    
-    // Start the interactive mode
-    const promise = runInteractiveMode();
-    
-    // Wait for all promises to resolve
-    await vi.waitFor(() => {
-      expect(shell.writeCdPath).toHaveBeenCalled();
-    });
-    
-    // Now advance timers
-    await vi.runAllTimersAsync();
-    
-    await expect(promise).rejects.toThrow('process.exit');
+    await expect(runInteractiveMode()).rejects.toThrow('process.exit');
 
     expect(prompts).toHaveBeenCalledTimes(2);
     expect(git.cloneRepository).toHaveBeenCalledWith(mockRepos[0].url, mockPath, 'main');
     expect(shell.writeCdPath).toHaveBeenCalledWith(mockPath);
     expect(process.exit).toHaveBeenCalledWith(0);
-
-    vi.useRealTimers();
   });
 
   it('should handle cancellation at repository selection', async () => {
