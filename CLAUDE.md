@@ -23,9 +23,11 @@ CLN is a lightweight Git repository management CLI tool built with TypeScript. I
 ## Architecture
 
 ### Core Structure
-The application follows a modular architecture with clear separation of concerns:
+The application follows a modular, command-based architecture with clear separation of concerns:
 
-- **CLI Entry Point** (`src/cli.ts`): Interactive mode using prompts for repository selection and branch input
+- **Entry Points**:
+  - `src/index.ts`: Main CLI setup using Commander.js, registers all subcommands, defaults to interactive mode when no arguments provided
+  - `src/cli.ts`: Interactive mode using prompts for repository selection and branch input
 - **Commands** (`src/commands/`): Each CLI command is a standalone module using ora for progress indication and picocolors for output formatting
 - **Utils** (`src/utils/`): Core functionality including Git operations, settings management, security utilities, and shell integration
 
@@ -35,20 +37,22 @@ The application follows a modular architecture with clear separation of concerns
 2. **Settings Management**: Centralized configuration stored in `~/.config/cln/settings.json` with atomic read/write operations
 3. **Shell Integration**: Provides cd functionality by writing target directory to a secure temp file with unique name that shell functions read
 4. **Consistent Error Handling**: All commands follow a pattern of colored error messages with proper exit codes
+5. **Security-First**: Comprehensive input validation, protection against command injection and path traversal, whitelist approach for allowed characters
 
 ### Testing Strategy
 - Command tests mock ora, prompts, and picocolors dependencies to test logic without UI
 - Utility functions have unit tests with mocked file system operations
 - Test setup in `src/__tests__/setup.ts` configures global mocks
+- Test helpers in `src/__tests__/helpers/` provide common mocks, assertions, and fixtures
 - All tests use vitest for fast execution
 
 ## Key Implementation Details
 
 ### Directory Structure
-Repositories are cloned to: `~/works/cln/{repository-name}/{branch-name}/`
+Repositories are cloned to: `~/cln/{repository-name}/{branch-name}/`
 
 ### Shell Integration
-The CLI writes the target directory to a secure temporary file (using `createSecureTempPath`) and outputs a marker (`__CLN_TEMPFILE__:path`) that shell functions parse to enable automatic cd after cloning.
+The CLI writes the target directory to a secure temporary file (using `createSecureTempPath`) and outputs a marker (`__CLN_TEMPFILE__:path`) that shell functions parse to enable automatic cd after cloning. The setup command installs shell functions for bash, zsh, and fish.
 
 ### State Management
 Each command is stateless and reads/writes settings directly from the configuration file. The interactive mode uses prompts to gather user input sequentially.
@@ -56,8 +60,14 @@ Each command is stateless and reads/writes settings directly from the configurat
 ### Error Handling
 All Git operations and file system interactions are wrapped in try-catch blocks with appropriate error messages displayed using picocolors with consistent formatting (`❌ Error: message`).
 
+### Security Considerations
+- All user inputs are validated and sanitized using functions in `src/utils/security.ts`
+- Git URLs are validated against a whitelist pattern
+- Repository and branch names are sanitized to prevent injection attacks
+- Temporary files use cryptographically secure random names
+
 ### Performance
 - Bundle size: ~36KB (JavaScript)
 - Total dist size: 72KB (includes source maps)
 - Minimal dependencies for fast startup
-- No heavy UI frameworks
+- ESM-only output (no CommonJS due to ora being ESM-only)
