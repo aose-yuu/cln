@@ -6,6 +6,7 @@ import { listRepositories } from './utils/settings.js';
 import { cloneRepository, getClonePath, ensureParentDirectory, directoryExists } from './utils/git.js';
 import { writeCdPath } from './utils/shell.js';
 
+
 export async function runInteractiveMode() {
   const spinner = ora('Loading repositories...').start();
   

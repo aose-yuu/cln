@@ -6,6 +6,7 @@ import { createCommand } from './commands/create.js';
 import { listCommand } from './commands/list.js';
 import { deleteCommand } from './commands/delete.js';
 import { configCommand } from './commands/config.js';
+import { setupCommand } from './commands/setup.js';
 
 const program = new Command();
 
@@ -24,6 +25,7 @@ program.addCommand(createCommand);
 program.addCommand(listCommand);
 program.addCommand(deleteCommand);
 program.addCommand(configCommand);
+program.addCommand(setupCommand);
 
 // Parse arguments
 program.parse(process.argv);
