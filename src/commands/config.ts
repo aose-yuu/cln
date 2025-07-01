@@ -1,21 +1,12 @@
 import { Command } from 'commander';
-import open from 'open';
+import { getSettingsPath } from '../utils/settings.js';
 import pc from 'picocolors';
-import { getSettingsPath, ensureConfigDir } from '../utils/settings.js';
+
+export async function configCommandAction() {
+  const settingsPath = getSettingsPath();
+  console.log(pc.cyan('Settings file:'), settingsPath);
+}
 
 export const configCommand = new Command('config')
-  .description('Open the settings file in your default editor')
-  .action(async () => {
-    try {
-      await ensureConfigDir();
-      const settingsPath = getSettingsPath();
-      
-      console.log(pc.cyan(`Opening settings file: ${settingsPath}`));
-      await open(settingsPath);
-      
-      process.exit(0);
-    } catch (error) {
-      console.error(pc.red(`❌ Error: Failed to open settings file: ${error}`));
-      process.exit(1);
-    }
-  });
+  .description('Show the settings file path')
+  .action(configCommandAction);
