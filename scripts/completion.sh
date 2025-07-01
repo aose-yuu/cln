@@ -9,7 +9,7 @@ _cln_completion_bash() {
   prev="${COMP_WORDS[COMP_CWORD-1]}"
   
   # Main commands
-  local commands="add create list delete config"
+  local commands="add create list delete config setup"
   
   # If we're on the first argument, suggest commands
   if [ $COMP_CWORD -eq 1 ]; then
@@ -51,6 +51,7 @@ _cln_completion_zsh() {
     'list:List all cloned repositories'
     'delete:Delete directories for a specific branch'
     'config:Open the settings file'
+    'setup:Setup CLN configuration and shell integration'
   )
   
   case "$words[2]" in
