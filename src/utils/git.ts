@@ -109,7 +109,7 @@ export async function listClonedRepositories(): Promise<ClonedRepository[]> {
         }
       }
     }
-  } catch (error) {
+  } catch {
     // Directory doesn't exist yet
   }
   

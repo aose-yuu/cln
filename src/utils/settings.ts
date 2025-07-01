@@ -15,7 +15,7 @@ const DEFAULT_SETTINGS: Settings = {
 export async function ensureConfigDir(): Promise<void> {
   try {
     await fs.mkdir(CONFIG_DIR, { recursive: true });
-  } catch (error) {
+  } catch {
     // Directory already exists or other error
   }
 }
@@ -26,7 +26,7 @@ export async function loadSettings(): Promise<Settings> {
   try {
     const content = await fs.readFile(SETTINGS_FILE, 'utf-8');
     return { ...DEFAULT_SETTINGS, ...JSON.parse(content) };
-  } catch (error) {
+  } catch {
     // File doesn't exist, return defaults
     return DEFAULT_SETTINGS;
   }
@@ -67,6 +67,7 @@ export function getSettingsPath(): string {
   return SETTINGS_FILE;
 }
 
+// Export expandPath function for use in git.ts
 export function expandPath(path: string): string {
   if (path.startsWith('~/')) {
     return join(homedir(), path.slice(2));

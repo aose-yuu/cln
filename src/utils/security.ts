@@ -27,7 +27,7 @@ export function sanitizeBranchName(branch: string): string {
   // Allow alphanumeric, hyphens, underscores, forward slashes for feature branches
   const sanitized = branch
     .replace(/\.\./g, '')
-    .replace(/[^a-zA-Z0-9_\/-]/g, '') // Note: Keep the - character last
+    .replace(/[^a-zA-Z0-9_/-]/g, '') // Note: Keep the - character last
     .replace(/\/+/g, '/') // Normalize multiple slashes
     .replace(/^\/|\/$/g, '') // Remove leading/trailing slashes
     .trim();
@@ -60,9 +60,9 @@ export function validateGitUrl(url: string): string {
   // Check for common Git URL patterns
   const gitUrlPatterns = [
     /^https?:\/\/[a-zA-Z0-9\-._~:/?#[\]@!'+,=]+$/,  // Removed semicolon and other dangerous chars
-    /^git@[a-zA-Z0-9\-._]+:[a-zA-Z0-9\-._\/]+\.git$/,
+    /^git@[a-zA-Z0-9\-._]+:[a-zA-Z0-9\-._/]+\.git$/,
     /^ssh:\/\/[a-zA-Z0-9\-._~:/?#[\]@!'+,=]+$/,
-    /^[a-zA-Z0-9\-._]+:[a-zA-Z0-9\-._\/]+\.git$/
+    /^[a-zA-Z0-9\-._]+:[a-zA-Z0-9\-._/]+\.git$/
   ];
   
   const isValidGitUrl = gitUrlPatterns.some(pattern => pattern.test(trimmedUrl));
@@ -134,7 +134,7 @@ export function sanitizeErrorMessage(error: unknown): string {
 export function escapeShellArg(arg: string): string {
   // For safety, we'll use a whitelist approach
   // Only allow safe characters and escape everything else
-  if (!/^[a-zA-Z0-9\-_.\/]+$/.test(arg)) {
+  if (!/^[a-zA-Z0-9\-_./]+$/.test(arg)) {
     // Wrap in single quotes and escape any single quotes
     return `'${arg.replace(/'/g, "'\\''")}'`;
   }
