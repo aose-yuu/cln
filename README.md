@@ -42,7 +42,8 @@ cln config               # Show config path
 {
   "outDir": "~/cln/",
   "repositories": {
-    "my-app": "git@github.com:username/my-app.git"
+    "my-app": "git@github.com:username/my-app.git",
+    "dotfiles": "git@github.com:username/dotfiles.git"
   }
 }
 ```
