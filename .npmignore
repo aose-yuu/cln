@@ -1,0 +1,34 @@
+# Source files (we only want to publish built files)
+src/
+*.ts
+*.tsx
+!dist/**/*.d.ts
+
+# Config files
+tsconfig.json
+build.config.ts
+.gitignore
+
+# Development
+node_modules/
+.vscode/
+.idea/
+
+# Tests
+test/
+tests/
+*.test.*
+*.spec.*
+
+# Documentation source
+docs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
