@@ -8,8 +8,9 @@ export default defineBuildConfig({
   outDir: 'dist',
   declaration: true,
   clean: true,
+  failOnWarn: false, // Don't fail on warnings
   rollup: {
-    emitCJS: true,
+    emitCJS: false, // Disable CJS build since ora is ESM-only
     inlineDependencies: false,
     esbuild: {
       target: 'node16',
@@ -17,12 +18,12 @@ export default defineBuildConfig({
     }
   },
   externals: [
-    'ink',
-    'ink-ui',
-    'react',
     'chalk',
     'commander',
     'execa',
-    'open'
+    'open',
+    'ora',
+    'prompts',
+    'picocolors'
   ]
 });
