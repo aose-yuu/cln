@@ -8,11 +8,15 @@ src/
 tsconfig.json
 build.config.ts
 .gitignore
+.eslintrc.json
+vitest.config.ts
+.changelogrc
 
 # Development
 node_modules/
 .vscode/
 .idea/
+.github/
 
 # Tests
 test/
@@ -22,6 +26,10 @@ tests/
 
 # Documentation source
 docs/
+WORK_PLAN_FOR_REFACTORING.md
+CLAUDE.md
+SECURITY.md
+CHANGELOG.md
 
 # OS
 .DS_Store
@@ -32,3 +40,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Duplicate/nested directory
+cln/
