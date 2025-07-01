@@ -1,6 +1,6 @@
 {
   "name": "cln",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A beautiful Git repository management CLI tool",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -16,34 +16,44 @@
     "postinstall": "node scripts/postinstall.js || true",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vitest"
+    "test": "vitest",
+    "release": "changelogen --release",
+    "release:minor": "changelogen --minor --release",
+    "release:major": "changelogen --major --release",
+    "release:patch": "changelogen --patch --release"
   },
   "keywords": [
     "cli",
     "git",
     "repository",
     "management",
-    "tool"
+    "tool",
+    "clone",
+    "workspace",
+    "developer-tools",
+    "devtools",
+    "productivity",
+    "git-management",
+    "terminal"
   ],
-  "author": "",
+  "author": "aose-yuu <aose.developer@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
-    "consola": "^3.2.3",
     "execa": "^8.0.1",
-    "ink": "^5.0.0",
-    "ink-text-input": "^6.0.0",
-    "ink-select-input": "^6.0.0",
-    "ink-spinner": "^5.0.0",
     "open": "^10.0.3",
-    "react": "^18.2.0"
+    "ora": "^8.2.0",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.5",
-    "@types/react": "^18.2.45",
+    "@types/prompts": "^2.4.9",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "changelogen": "^0.6.1",
     "eslint": "^8.56.0",
-    "ink-testing-library": "^4.0.0",
     "typescript": "^5.3.3",
     "unbuild": "^2.0.0",
     "vitest": "^1.0.0"
@@ -58,5 +68,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/cln.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/cln/issues"
+  },
+  "homepage": "https://github.com/yourusername/cln#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
