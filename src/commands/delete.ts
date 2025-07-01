@@ -13,15 +13,15 @@ export async function deleteCommandAction(branchName: string) {
     spinner.stop();
     
     if (matches.length === 0) {
-      console.error(pc.red(`❌ Error: No directories found for branch '${branchName}'`));
-      process.exit(1);
+      console.log(pc.yellow(`No directories found with branch '${branchName}'`));
+      return;
     }
     
     // Show directories to be deleted
-    console.log(pc.bold(pc.yellow('⚠️  The following directories will be deleted:')));
+    console.log(pc.bold(pc.red('\nThe following directories will be deleted:')));
     console.log();
-    matches.forEach(dir => {
-      console.log(pc.red(`• ${dir.repository}/${dir.branch} → ${dir.path}`));
+    matches.forEach(repo => {
+      console.log(`  ${pc.red('✗')} ${repo.repository}/${repo.branch} → ${pc.dim(repo.path)}`);
     });
     console.log();
     
@@ -29,42 +29,44 @@ export async function deleteCommandAction(branchName: string) {
     const { shouldDelete } = await prompts({
       type: 'confirm',
       name: 'shouldDelete',
-      message: `Are you sure you want to delete ${matches.length} director${matches.length === 1 ? 'y' : 'ies'}?`,
+      message: `Delete ${matches.length} director${matches.length === 1 ? 'y' : 'ies'}?`,
       initial: false
     });
     
     if (!shouldDelete) {
-      console.log(pc.gray('Cancelled'));
-      process.exit(0);
+      console.log(pc.yellow('Deletion cancelled'));
+      return;
     }
     
     // Delete directories
     const deleteSpinner = ora('Deleting directories...').start();
-    let hasErrors = false;
-    let errorMessage = '';
+    let successCount = 0;
+    const errors: string[] = [];
     
-    for (const dir of matches) {
-      const result = await removeDirectory(dir.path);
-      if (!result.success) {
-        hasErrors = true;
-        errorMessage = result.error || 'Failed to delete some directories';
+    for (const repo of matches) {
+      try {
+        await removeDirectory(repo.path);
+        successCount++;
+      } catch (err) {
+        errors.push(`Failed to delete ${repo.path}: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
     
-    if (hasErrors) {
-      deleteSpinner.fail(pc.red(`❌ Error: ${errorMessage}`));
+    if (errors.length > 0) {
+      deleteSpinner.fail(pc.red('Some directories could not be deleted'));
+      errors.forEach(error => console.error(pc.red('  • ' + error)));
       process.exit(1);
     } else {
-      deleteSpinner.succeed(pc.green(`✅ Successfully deleted ${matches.length} director${matches.length === 1 ? 'y' : 'ies'}`));
-      process.exit(0);
+      deleteSpinner.succeed(pc.green(`Deleted ${successCount} director${successCount === 1 ? 'y' : 'ies'}`));
     }
   } catch (err) {
-    spinner.fail(pc.red(`❌ Error: ${err instanceof Error ? err.message : 'Failed to find directories'}`));
+    spinner.fail(pc.red('Failed to search directories'));
+    console.error(pc.red('Error:'), err instanceof Error ? err.message : String(err));
     process.exit(1);
   }
 }
 
 export const deleteCommand = new Command('delete')
-  .description('Delete directories for a specific branch name')
-  .argument('<branch-name>', 'Branch name to delete')
+  .description('Delete cloned repositories by branch name')
+  .argument('<branch>', 'Branch name to delete')
   .action(deleteCommandAction);
