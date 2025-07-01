@@ -1,6 +1,6 @@
 # CLN - Git Repository Management CLI
 
-A beautiful and efficient CLI tool for managing Git repositories with an intuitive interface powered by [Ink](https://github.com/vadimdemedes/ink).
+A lightweight and efficient CLI tool for managing Git repositories with an intuitive terminal interface.
 
 ## Features
 

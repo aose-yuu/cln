@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CLN is a Git repository management CLI tool built with TypeScript and Ink (React for CLIs). It provides an interactive terminal UI for cloning and managing Git repositories with automatic directory organization.
+CLN is a lightweight Git repository management CLI tool built with TypeScript. It provides an interactive terminal UI for cloning and managing Git repositories with automatic directory organization. The tool uses minimal dependencies (prompts, ora, picocolors) for a fast and efficient user experience.
 
 ## Commands
 
@@ -25,22 +25,22 @@ CLN is a Git repository management CLI tool built with TypeScript and Ink (React
 ### Core Structure
 The application follows a modular architecture with clear separation of concerns:
 
-- **CLI Entry Point** (`src/cli.tsx`): Commander.js integration with Ink React components
-- **Commands** (`src/commands/`): Each CLI command is a separate React component that handles user interaction and business logic
-- **Components** (`src/components/`): Reusable Ink UI components (BranchInput, RepositorySelect, etc.)
-- **Utils** (`src/utils/`): Core functionality including Git operations, settings management, and shell integration
+- **CLI Entry Point** (`src/cli.ts`): Interactive mode using prompts for repository selection and branch input
+- **Commands** (`src/commands/`): Each CLI command is a standalone module using ora for progress indication and picocolors for output formatting
+- **Utils** (`src/utils/`): Core functionality including Git operations, settings management, security utilities, and shell integration
 
 ### Key Design Patterns
 
-1. **Interactive UI Components**: All commands render Ink components for rich terminal UIs with loading states, error handling, and user input
+1. **Lightweight UI**: Commands use ora for spinners, prompts for user input, and picocolors for colored output - no heavy UI frameworks
 2. **Settings Management**: Centralized configuration stored in `~/.config/cln/settings.json` with atomic read/write operations
-3. **Shell Integration**: Provides cd functionality by writing target directory to a temp file that shell functions read
-4. **Error Boundaries**: Each command component handles errors gracefully with user-friendly messages
+3. **Shell Integration**: Provides cd functionality by writing target directory to a secure temp file with unique name that shell functions read
+4. **Consistent Error Handling**: All commands follow a pattern of colored error messages with proper exit codes
 
 ### Testing Strategy
-- Component tests use `ink-testing-library` for testing terminal UI output
+- Command tests mock ora, prompts, and picocolors dependencies to test logic without UI
 - Utility functions have unit tests with mocked file system operations
 - Test setup in `src/__tests__/setup.ts` configures global mocks
+- All tests use vitest for fast execution
 
 ## Key Implementation Details
 
@@ -48,10 +48,16 @@ The application follows a modular architecture with clear separation of concerns
 Repositories are cloned to: `~/works/cln/{repository-name}/{branch-name}/`
 
 ### Shell Integration
-The CLI writes the target directory to `/tmp/.cln_cd_path` which shell functions read to enable automatic cd after cloning.
+The CLI writes the target directory to a secure temporary file (using `createSecureTempPath`) and outputs a marker (`__CLN_TEMPFILE__:path`) that shell functions parse to enable automatic cd after cloning.
 
 ### State Management
-Each command component manages its own state using React hooks. No global state management is used - settings are read/written directly from the configuration file.
+Each command is stateless and reads/writes settings directly from the configuration file. The interactive mode uses prompts to gather user input sequentially.
 
 ### Error Handling
-All Git operations and file system interactions are wrapped in try-catch blocks with appropriate error messages displayed through Ink's error components.
+All Git operations and file system interactions are wrapped in try-catch blocks with appropriate error messages displayed using picocolors with consistent formatting (`❌ Error: message`).
+
+### Performance
+- Bundle size: ~36KB (JavaScript)
+- Total dist size: 72KB (includes source maps)
+- Minimal dependencies for fast startup
+- No heavy UI frameworks
