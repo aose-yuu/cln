@@ -10,7 +10,6 @@ import {
   removeDirectory
 } from '../utils/git.js';
 import * as security from '../utils/security.js';
-import * as settings from '../utils/settings.js';
 
 // Mock external dependencies
 vi.mock('fs', () => ({
